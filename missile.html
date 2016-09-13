@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+    <canvas id="myCanvas" width="800" height="500" style="border:1px solid #E5E5E5;"></canvas>
+</body>
+<script type="text/javascript">
+    //CONSTANTS
+    var PLANE_DELTHETA = 5;
+    var MISSILE_DELTHETA = 2;
+
+    var canvas = document.getElementById("myCanvas");
+
+    var STATE = {
+        mouseDown: false,
+        mouseX: 0,
+        mouseY: 0,
+        planeX: 400,
+        planeY: 200,
+        planeTheta: 270,
+        missiles: []
+    };
+
+    var newMissile = function(id){
+        return {
+            id: id,
+            missileX: 400,
+            missileY: 500,
+            missileTheta: 270
+        };
+    };
+
+    var listeners = {
+        mouseDownListener: function(e){
+            STATE.mouseDown = true;
+            STATE.mouseX = e.clientX;
+            STATE.mouseY = e.clientY;
+        },
+        mouseUpListener: function(){
+            STATE.mouseDown = false;
+        }
+    };
+
+    var drawState = function(){
+        var ctx = canvas.getContext("2d");
+        //clearing canvas
+        ctx.clearRect(0, 0, 800, 600);
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.translate(STATE.planeX + 15, STATE.planeY + 10);
+        ctx.rotate(STATE.planeTheta*Math.PI/180);
+        ctx.rect(-15, -10, 30, 20);
+        ctx.stroke();
+
+        ctx.restore();
+    };
+
+    //this is where the magic happens
+    var updateState = function(callback){
+        if(STATE.mouseDown === true){
+            //turn left
+            if(STATE.mouseX<400){
+                STATE.planeTheta += PLANE_DELTHETA;
+                //console.log("turing left planeTheta: " + STATE.planeTheta);
+            }
+            //turn right
+            else{
+                STATE.planeTheta -= PLANE_DELTHETA;
+                //console.log("turing right. planeTheta: " + STATE.planeTheta);
+            }
+        }
+        callback();
+    };
+
+    window.onload = function(){
+        window.addEventListener("mousedown", listeners.mouseDownListener, false);
+        window.addEventListener("mouseup", listeners.mouseUpListener, false);
+
+        function step(global_time) {
+            updateState(drawState);
+            window.requestAnimationFrame(step);
+        }
+
+        window.requestAnimationFrame(step);
+    };
+
+</script>
+</html>
